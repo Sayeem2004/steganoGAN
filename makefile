@@ -21,7 +21,7 @@ dataset:
 	rm -rf DIV2K_valid_LR_bicubic_X4.zip
 
 train:
-	venv/bin/python -m src.train
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6
 
 train-basic:
 	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=1
