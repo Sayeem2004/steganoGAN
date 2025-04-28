@@ -21,3 +21,5 @@ TODO:
 - Train SteganoGAN on various combinations (we will decide them now)
 - Implement Reed-Solomon encryption algorithm (so we can actually test out on text inputs, for some cool examples).
 - Obtain the classical steganoanalysis tools, and be ready to test them out on the trained models.
+
+- On RTX 5070 Ti, takes about 15 seconds per epoch. On a M1 Mac takes about 20 mins per epoch.
