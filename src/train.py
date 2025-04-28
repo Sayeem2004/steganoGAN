@@ -1,5 +1,6 @@
 import os
 import torch
+import argparse
 import torch.nn as nn
 from tqdm import tqdm
 import torch.nn.functional as F
@@ -95,7 +96,7 @@ def validate_both(network, dataloader):
     for images, data in tqdm(dataloader, desc="Both Validation", leave=True):
         generated, decoded = network(images, data)
         encoder_mse        = F.mse_loss(generated, images)
-        decoder_loss       = F.binary_cross_entropy_with_logits(decoded, data)
+        decoder_loss       = F.binary_cross_entropy_with_logits(decoded.float(), data.float())
         decoder_acc        = (decoded > 0).float().eq(data).float().mean()
         generated_score    = network.critic(generated)
         image_score        = network.critic(images)
@@ -129,9 +130,8 @@ def validate_both(network, dataloader):
             total_critic_loss, total_ssim, total_psnr, total_bpp)
 
 
-def train_network(train_images, val_images, epochs=10):
-    # Create the network and optimizer
-    network             = DenseSteganoGAN(data_depth=1, device='cuda' if torch.cuda.is_available() else 'cpu')
+def train_network(network, train_images, val_images, epochs=10):
+    # Create the optimizers
     combined_parameters = list(network.encoder.parameters()) + list(network.decoder.parameters())
     forward_optimizer   = torch.optim.AdamW(combined_parameters, lr=0.0001)
     critic_optimizer    = torch.optim.AdamW(network.critic.parameters(), lr=0.0001)
@@ -152,11 +152,12 @@ def train_network(train_images, val_images, epochs=10):
 
     # Training loop
     train_stats, eval_stats = [], []
-    os.makedirs("models", exist_ok=True)
+    os.makedirs(f"models/{network.name}/{network.data_depth}/", exist_ok=True)
 
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
 
+        # Training the encoder, decoder, and critic
         network.train()
         encode_mse, decode_loss, decode_acc, generated_score = update_forward(network, train_loader, forward_optimizer)
         critic_loss = update_critic(network, train_loader, critic_optimizer)
@@ -165,6 +166,7 @@ def train_network(train_images, val_images, epochs=10):
             "decode_acc": decode_acc, "generated_score": generated_score, "critic_loss": critic_loss
         })
 
+        # Validation of the encoder, decoder, and critic
         network.eval()
         encode_mse, decode_loss, decode_acc, generated_score, critic_loss, ssim, psnr, bpp = validate_both(network, val_loader)
         eval_stats.append({
@@ -173,13 +175,20 @@ def train_network(train_images, val_images, epochs=10):
         })
 
         # Save the model
-        torch.save(network.state_dict(), f"models/model_epoch_{epoch + 1}.pth")
-        print(f"Model saved as model_epoch_{epoch + 1}.pth")
-
+        if (epoch + 1) % 4 == 0 or (epoch + 1) == epochs:
+            torch.save(network.state_dict(), f"models/{network.name}/{network.data_depth}/epoch_{epoch + 1}.pth")
+            print(f"Model saved as {network.name}_{network.data_depth}_epoch_{epoch + 1}.pth")
     return train_stats, eval_stats
 
 
 if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Train the SteganoGAN model.")
+    parser.add_argument("--model", type=str, default="DenseSteganoGAN", help="Model to train (BasicSteganoGAN, ResidualSteganoGAN, DenseSteganoGAN)")
+    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train")
+    parser.add_argument("--data_depth", type=int, default=1, help="Data depth for the model")
+    args = parser.parse_args()
+
     # Load training images from the directory
     train_image_dir   = "DIV2K_train_LR_bicubic/X4/"
     train_image_files = [os.path.join(train_image_dir, f) for f in os.listdir(train_image_dir) if f.endswith(('.png'))]
@@ -192,12 +201,19 @@ if __name__ == "__main__":
     val_transform   = transforms.Compose([transforms.ToTensor()])
     val_images      = [val_transform(Image.open(img).convert("RGB")) for img in val_image_files]
 
+    # Create the network
+    network, device = None, "cuda" if torch.cuda.is_available() else "cpu"
+    if args.model == "BasicSteganoGAN": network = BasicSteganoGAN(data_depth=args.data_depth, device=device)
+    elif args.model == "ResidualSteganoGAN": network = ResidualSteganoGAN(data_depth=args.data_depth, device=device)
+    elif args.model == "DenseSteganoGAN": network = DenseSteganoGAN(data_depth=args.data_depth, device=device)
+
+
     # Train the network
     print("Starting training...")
-    train_stats, eval_stats = train_network(train_images, val_images, epochs=10)
+    train_stats, eval_stats = train_network(network, train_images, val_images, epochs=32)
     print("Training completed.")
 
     # Save the training and evaluation losses
-    torch.save(train_stats, "models/train_stats.pth")
-    torch.save(eval_stats, "models/eval_stats.pth")
+    torch.save(train_stats, f"models/{network.name}/{network.data_depth}/train_stats.pth")
+    torch.save(eval_stats, f"models/{network.name}/{network.data_depth}/eval_stats.pth")
     print("Training and evaluation losses saved.")

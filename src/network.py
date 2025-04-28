@@ -14,6 +14,7 @@ class BasicSteganoGAN(nn.Module):
         self.encoder = BasicEncoder(data_depth)
         self.decoder = DenseDecoder(data_depth)
         self.critic = BasicCritic()
+        self.name = "BasicSteganoGAN"
 
         if device is not None:
             self.device = device
@@ -78,6 +79,7 @@ class ResidualSteganoGAN(BasicSteganoGAN):
         self.encoder = ResidualEncoder(data_depth)
         self.decoder = DenseDecoder(data_depth)
         self.critic = BasicCritic()
+        self.name = "ResidualSteganoGAN"
 
         if device is not None:
             self.device = device
@@ -93,6 +95,7 @@ class DenseSteganoGAN(BasicSteganoGAN):
         self.encoder = DenseEncoder(data_depth)
         self.decoder = DenseDecoder(data_depth)
         self.critic = BasicCritic()
+        self.name = "DenseSteganoGAN"
 
         if device is not None:
             self.device = device

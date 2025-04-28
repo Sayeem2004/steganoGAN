@@ -22,3 +22,32 @@ dataset:
 
 train:
 	venv/bin/python -m src.train
+
+train-basic:
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=1
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=2
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=3
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=4
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=5
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=32 --data_depth=6
+
+train-residual:
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=1
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=2
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=3
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=4
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=5
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=32 --data_depth=6
+
+train-dense:
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=1
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=2
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=3
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=4
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=5
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6
+
+train-all:
+	make train-basic
+	make train-residual
+	make train-dense
