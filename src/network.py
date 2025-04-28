@@ -68,7 +68,7 @@ class BasicSteganoGAN(nn.Module):
     # Assumes that the image and data are already converted
     def decode(self, image):
         decoded = self.decoder(image)
-        return self.unconvert_image(decoded)
+        return self.unconvert_text(decoded)
 
 
 class ResidualSteganoGAN(BasicSteganoGAN):
