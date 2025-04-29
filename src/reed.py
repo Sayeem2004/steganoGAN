@@ -1,8 +1,5 @@
 import zlib
-
 from reedsolo import RSCodec
-#determiens how many symbols are appended to the original message to ecc
-
 rs = RSCodec(250)
 
 
@@ -17,9 +14,9 @@ def bits_to_text(bits):
 
 def byteString_to_bitString(bit_string):
     """Convert bit string of <255 to a string of bits 8 chars long"""
-    #remove the 0b of the bit string
+    # Remove the 0b of the bit string
     bit_string = bit_string[2:]
-    #append 0's to keep bit string 8 chars
+    # Append 0's to keep bit string 8 chars
     bit_string = '00000000'[len(bit_string):] + bit_string
     return bit_string
 
@@ -30,7 +27,6 @@ def bytearray_to_bits(byte_array):
     for byte in byte_array:
         bits = byteString_to_bitString(bin(byte))
         bit_string.extend([int(b) for b in bits])
-
     return bit_string
 
 
@@ -49,28 +45,27 @@ def bits_to_bytearray(bits):
 def text_to_bytearray(text):
     """Compress and add error correction"""
     assert isinstance(text, str), "expected a string"
-    #encoding text into bytes and compressing for faster encoding
+    # Encoding text into bytes and compressing for faster encoding
     byte_array = zlib.compress(text.encode("utf-8"))
-    #takes byte array then encodes using RS algorithm
+    # Takes byte array then encodes using RS algorithm
     byte_array = rs.encode(bytearray(byte_array))
-
     return byte_array
 
 
 def bytearray_to_text(byte_array):
     """Apply error correction and decompress"""
     try:
-        #returns the Reed solomon error corrected message
+        # Returns the Reed solomon error corrected message
         text = rs.decode(byte_array)[0]
-        #decompressed data into bytes
+        # Decompressed data into bytes
         text = zlib.decompress(text)
-        #decodes bytes to text 
+        # Decodes bytes to text
         return text.decode("utf-8")
     except BaseException:
         return False
-    
 
-if __name__ == '__main__': 
+
+if __name__ == '__main__':
     original_message = "adsfg"*1000
     bits = text_to_bits(original_message)
     recovered_message = bits_to_text(bits)
