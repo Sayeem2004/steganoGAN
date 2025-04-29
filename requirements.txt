@@ -5,3 +5,4 @@ reedsolo
 torch
 torchvision
 tqdm
+numpy==1.24.3

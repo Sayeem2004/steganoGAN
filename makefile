@@ -98,3 +98,33 @@ train-all-extra:
 train-all-both:
 	make train-all
 	make train-all-extra
+
+
+metrics-basic:
+		venv/bin/python metrics.py --model_type=basic --data_depth=1 --model_path=models/basic/depth1_epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+
+metrics-residual:
+
+metrics-dense:
+		venv/bin/python metrics.py --model_type=dense --data_depth=3 --model_path=models/archived/augmented/DenseSteganoGAN/3/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+
+
+metrics-all:
+	make metrics-basic
+	make metrics-residual
+	make metrics-dense
+
+metrics-basic-extra:
+
+metrics-residual-extra:
+
+metrics-dense-extra:
+
+metrics-all-extra:
+	make metrics-basic-extra
+	make metrics-residual-extra
+	make metrics-dense-extra
+
+metrics-all-both:
+	make metrics-all
+	make metrics-all-extra

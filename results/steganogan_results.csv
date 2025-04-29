@@ -1,0 +1,2 @@
+timestamp,model_type,data_depth,epoch,accuracy,rs_bpp,psnr,ssim,model_path
+2025-04-29 17:54:07,dense,3,32,0.5002864488959312,0.002627938985824585,-33.613302307128905,-0.00028306446057740686,models/archived/augmented/DenseSteganoGAN/3/epoch_32.pth

@@ -290,7 +290,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default="Div2K_test_LR_unknown/X4/",
+        default="data/Div2K_test_LR_unknown/X4/",
         help="Path to a custom dataset directory",
     )
 
