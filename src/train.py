@@ -56,7 +56,7 @@ def update_forward(network, dataloader, optimizer):
 
         # Update the network
         optimizer.zero_grad()
-        (encoder_mse + decoder_loss + generated_score).backward()
+        (100 * encoder_mse + decoder_loss + generated_score).backward()
         torch.nn.utils.clip_grad_norm_(network.parameters(), max_norm=0.25)
         optimizer.step()
 
