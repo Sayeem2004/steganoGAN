@@ -174,10 +174,13 @@ def train_network(network, train_images, val_images, epochs=10):
     device = next(network.parameters()).device
 
     # Create training and validation datasets
+    train_images  = [image.to(device) for image in train_images]
     train_payload = network.random_data(train_images)
-    val_payload   = network.random_data(val_images)
-    val_data   = RenderDataset([image.to(device) for image in val_images], val_payload)
-    train_data = RenderDataset([image.to(device) for image in train_images], train_payload)
+    train_data    = RenderDataset(train_images, train_payload)
+
+    val_images  = [image.to(device) for image in val_images]
+    val_payload = network.random_data(val_images)
+    val_data    = RenderDataset(val_images, val_payload)
 
     # Create data loaders
     val_loader   = torch.utils.data.DataLoader(val_data, batch_size=1, shuffle=False)
