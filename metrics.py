@@ -15,29 +15,22 @@ from src.network import DenseSteganoGAN, BasicSteganoGAN, ResidualSteganoGAN
 def calculate_rs_bpp(bit_accuracy, data_depth):
     ratio = max(0, 2 * bit_accuracy - 1)
     rs_bpp = ratio * data_depth
-
     return rs_bpp
 
 
 def calculate_psnr(cover_image, stego_image):
     mse = torch.mean((cover_image - stego_image) ** 2)
-
-    if mse < 1e-10:
-        return float("inf")
-
+    if mse < 1e-10: return float("inf")
     max_pixel_value = 1.0
     psnr = 20 * torch.log10(torch.tensor(max_pixel_value)) - 10 * torch.log10(mse)
-
     return psnr.item()
 
 
 def gaussian(window_size, sigma):
-    gauss = torch.Tensor(
-        [
-            exp(-((x - window_size // 2) ** 2) / float(2 * sigma**2))
-            for x in range(window_size)
-        ]
-    )
+    gauss = torch.Tensor([
+        exp(-((x - window_size // 2) ** 2) / float(2 * sigma**2))
+        for x in range(window_size)
+    ])
     return gauss / gauss.sum()
 
 

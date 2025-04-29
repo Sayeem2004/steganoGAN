@@ -22,13 +22,13 @@ class BasicSteganoGAN(nn.Module):
             self.decoder.to(device)
             self.critic.to(device)
 
-    # Normalize to [-1, 1]
+    # Normalize to [-1, 1], assuming (B, D, H, W)
     def convert_image(self, images):
         images = [image / 127.5 - 1.0 for image in images]
         images = [images.to(device=self.device) for images in images]
         return images
 
-    # Denormalize to [0, 255]
+    # Denormalize to [0, 255], assuming (B, D, H, W)
     def unconvert_image(self, images):
         images = [(image + 1.0) * 127.5 for image in images]
         return images.clamp(0, 255).to(torch.uint8)

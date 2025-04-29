@@ -33,17 +33,35 @@ def update_forward(network, dataloader, optimizer):
     total_generated_score = 0
 
     for images, data in tqdm(dataloader, desc="Network Training", leave=True):
+        # Randomly flip the images
+        random = torch.rand(1).item()
+        if random > 0.75: images = torch.flip(images, dims=[-1])  # Horizontal flip
+        elif random > 0.5: images = torch.flip(images, dims=[-2])  # Vertical flip
+        elif random > 0.25: images = torch.flip(images, dims=[-1, -2])  # H/V flip
+
+        # Randomly crop the images while ensuring some minimum size
+        min_height, min_width = images.shape[-2] // 2, images.shape[-1] // 2
+        top    = torch.randint(0, images.shape[-2]-min_height+1, (1,)).item()
+        left   = torch.randint(0, images.shape[-1]-min_width+1, (1,)).item()
+        bottom = torch.randint(top+min_height, images.shape[-2]+1, (1,)).item()
+        right  = torch.randint(left+min_width, images.shape[-1]+1, (1,)).item()
+        images = images[:, :, top:bottom, left:right]
+        data = data[:, :, top:bottom, left:right]
+
+        # Run the images through the network
         generated, decoded = network(images, data)
         encoder_mse        = F.mse_loss(generated, images)
         decoder_loss       = F.binary_cross_entropy_with_logits(decoded.float(), data.float())
         decoder_acc        = (decoded > 0).float().eq(data).float().mean()
         generated_score    = network.critic(generated)
 
+        # Update the network
         optimizer.zero_grad()
         (encoder_mse + decoder_loss + generated_score).backward()
         torch.nn.utils.clip_grad_norm_(network.parameters(), max_norm=0.25)
         optimizer.step()
 
+        # Record the statistics
         total_encode_mse      += encoder_mse.item()
         total_decode_loss     += decoder_loss.item()
         total_decode_acc      += decoder_acc.item()
@@ -206,7 +224,6 @@ if __name__ == "__main__":
     if args.model == "BasicSteganoGAN": network = BasicSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "ResidualSteganoGAN": network = ResidualSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "DenseSteganoGAN": network = DenseSteganoGAN(data_depth=args.data_depth, device=device)
-
 
     # Train the network
     print("Starting training...")
