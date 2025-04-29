@@ -83,7 +83,9 @@ def evaluate_steganogan(model, dataloader, device="cuda"):
     with torch.no_grad():
         for cover_images, _ in dataloader:
             batch_size = cover_images.size(0)
+            # input image
             cover_images = cover_images.to(device)
+            normalized_cover_images = model.convert_image([cover_images])[0]
 
             data = torch.bernoulli(
                 torch.ones(
@@ -95,22 +97,26 @@ def evaluate_steganogan(model, dataloader, device="cuda"):
                 * 0.5
             ).to(device)
 
-            stego_images, decoded_data = model(cover_images, data)
+            # output image
+            stego_images, decoded_data = model(normalized_cover_images, data)
+            # unconvertinng image not sure if its right
+            stego_images = ((stego_images + 1.0) * 127.5) / 255.0
 
             bit_accuracy = (
                 (decoded_data > 0).float().eq(data).float().mean(dim=[1, 2, 3])
             )
 
             for i in range(batch_size):
+                # correct
                 acc = bit_accuracy[i].item()
                 results["accuracy"].append(acc)
-
+                # correct
                 rs_bpp = calculate_rs_bpp(acc, model.data_depth)
                 results["rs_bpp"].append(rs_bpp)
-
+                # not sure if its correct since cover_images are not normalized?
                 psnr = calculate_psnr(cover_images[i : i + 1], stego_images[i : i + 1])
                 results["psnr"].append(psnr)
-
+                # not sure if its correct since cover_images are not normalized?
                 ssim = calculate_ssim(cover_images[i : i + 1], stego_images[i : i + 1])
                 results["ssim"].append(ssim)
 
@@ -164,7 +170,7 @@ def evaluate_model_on_dataset(
             root="./data", train=False, download=True, transform=transform
         )
 
-    test_dataloader = DataLoader(test_dataset, batch_size=16, shuffle=False)
+    test_dataloader = DataLoader(test_dataset, batch_size=1, shuffle=False)
 
     # Evaluate the model
     metrics = evaluate_steganogan(model, test_dataloader, device=device)
@@ -189,8 +195,9 @@ def visualize_examples(
         for images, _ in dataloader:
             if len(examples) >= num_examples:
                 break
-
+            # input image
             images = images.to(device)
+            normalized_images = model.convert_image([images])[0]
 
             batch_size = images.size(0)
             data = torch.bernoulli(
@@ -202,8 +209,10 @@ def visualize_examples(
                 )
                 * 0.5
             ).to(device)
-
-            stego_images, decoded_data = model(images, data)
+            # output image
+            stego_images, decoded_data = model(normalized_images, data)
+            # unconvertinng image not sure if its right
+            stego_images = ((stego_images + 1.0) * 127.5) / 255.0
 
             for i in range(min(batch_size, num_examples - len(examples))):
                 examples.append(
@@ -225,7 +234,7 @@ def visualize_examples(
         axes[i, 0].imshow(np.clip(cover_img, 0, 1))
         axes[i, 0].set_title("Cover Image")
         axes[i, 0].axis("off")
-
+        # not sure if its right
         stego_img = example["stego"].permute(1, 2, 0).numpy()
         axes[i, 1].imshow(np.clip(stego_img, 0, 1))
         psnr = calculate_psnr(
@@ -233,12 +242,12 @@ def visualize_examples(
         )
         axes[i, 1].set_title(f"Stego Image (PSNR: {psnr:.2f})")
         axes[i, 1].axis("off")
-
+        # correct
         data_img = example["data"][0].numpy()
         axes[i, 2].imshow(data_img, cmap="gray")
         axes[i, 2].set_title("Hidden Data")
         axes[i, 2].axis("off")
-
+        # correct
         decoded = (example["decoded"][0] > 0).float().numpy()
         axes[i, 3].imshow(decoded, cmap="gray")
         acc = (decoded == example["data"][0].numpy()).mean()
@@ -343,8 +352,5 @@ if __name__ == "__main__":
             save_path=args.viz_output,
         )
 
-# Load and evaluate a specific trained model
-# python metrics.py --model_type dense --data_depth 4 --model_path models/DenseSteganoGAN/4/epoch_32.pth --dataset_path /path/to/your/images
-
-# Visualize examples from a trained model
-# python metrics.py --model_type dense --data_depth 3 --model_path models/DenseSteganoGAN/3/epoch_32.pth --dataset_path /path/to/your/images --visualize
+# Example usage: (download the testimg dataset for debugging)
+# python metrics.py --model_type dense --data_depth 3 --model_path models/DenseSteganoGAN/3/epoch_32.pth --dataset_path testimg/ --visualize
