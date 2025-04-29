@@ -171,12 +171,13 @@ def train_network(network, train_images, val_images, epochs=10):
     combined_parameters = list(network.encoder.parameters()) + list(network.decoder.parameters())
     forward_optimizer   = torch.optim.AdamW(combined_parameters, lr=0.0001)
     critic_optimizer    = torch.optim.AdamW(network.critic.parameters(), lr=0.0001)
+    device = next(network.parameters()).device
 
     # Create training and validation datasets
     train_payload = network.random_data(train_images)
     val_payload   = network.random_data(val_images)
-    val_data   = RenderDataset(val_images, val_payload)
-    train_data = RenderDataset(train_images, train_payload)
+    val_data   = RenderDataset([image.to(device) for image in val_images], val_payload)
+    train_data = RenderDataset([image.to(device) for image in train_images], train_payload)
 
     # Create data loaders
     val_loader   = torch.utils.data.DataLoader(val_data, batch_size=1, shuffle=False)
