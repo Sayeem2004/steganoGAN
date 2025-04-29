@@ -85,3 +85,7 @@ train-all-extra:
 	make train-basic-extra
 	make train-residual-extra
 	make train-dense-extra
+
+train-all-both:
+	make train-all
+	make train-all-extra
