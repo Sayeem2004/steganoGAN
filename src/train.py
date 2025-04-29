@@ -82,14 +82,32 @@ def update_critic(network, dataloader, optimizer):
     total_critic_loss = 0
 
     for images, data in tqdm(dataloader, desc="Critic Training", leave=True):
+        # Randomly flip the images
+        random = torch.rand(1).item()
+        if random > 0.75: images = torch.flip(images, dims=[-1])  # Horizontal flip
+        elif random > 0.5: images = torch.flip(images, dims=[-2])  # Vertical flip
+        elif random > 0.25: images = torch.flip(images, dims=[-1, -2])  # H/V flip
+
+        # Randomly crop the images while ensuring some minimum size
+        min_height, min_width = images.shape[-2] // 2, images.shape[-1] // 2
+        top    = torch.randint(0, images.shape[-2]-min_height+1, (1,)).item()
+        left   = torch.randint(0, images.shape[-1]-min_width+1, (1,)).item()
+        bottom = torch.randint(top+min_height, images.shape[-2]+1, (1,)).item()
+        right  = torch.randint(left+min_width, images.shape[-1]+1, (1,)).item()
+        images = images[:, :, top:bottom, left:right]
+        data = data[:, :, top:bottom, left:right]
+
+        # Run the images through the network
         generated       = network.forward(images, data)[0]
         image_score     = network.critic(images)
         generated_score = network.critic(generated)
 
+        # Update the critic
         optimizer.zero_grad()
         (image_score - generated_score).backward(retain_graph=True)
         optimizer.step()
 
+        # Clip the critic weights as per the original paper
         for param in network.critic.parameters():
             param.data.clamp_(-0.1, 0.1)
         total_critic_loss += (image_score - generated_score).item()
@@ -136,6 +154,7 @@ def validate_both(network, dataloader):
     total_generated_score /= len(dataloader)
     total_critic_loss     /= len(dataloader)
 
+    # TODO: Average SSIM, PSNR, and BPP
     # total_ssim /= len(dataloader)
     # total_psnr /= len(dataloader)
     # total_bpp  /= len(dataloader)
