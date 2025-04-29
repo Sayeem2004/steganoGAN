@@ -7,7 +7,7 @@ install:
 	venv/bin/pip install -r requirements.txt
 
 venv:
-	python3.11 -m venv venv/
+	python3.9 -m venv venv/
 	venv/bin/pip install --upgrade pip setuptools wheel
 
 # Run Commands
@@ -19,6 +19,9 @@ dataset:
 	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_bicubic_X4.zip
 	unzip DIV2K_valid_LR_bicubic_X4.zip
 	rm -rf DIV2K_valid_LR_bicubic_X4.zip
+
+run:
+	venv/bin/python run.py --model_type="dense" --data_depth=6 --model_path=models/DenseSteganoGAN/6/epoch_32.pth --image_path=DIV2K_valid_LR_bicubic/X4/0801x4.png --text="Hello World!"	
 
 train:
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6

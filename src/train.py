@@ -1,13 +1,12 @@
 import os
 import torch
 import argparse
-import torch.nn as nn
+from PIL import Image
 from tqdm import tqdm
 import torch.nn.functional as F
 from torchvision import transforms
 
 from src.network import BasicSteganoGAN, ResidualSteganoGAN, DenseSteganoGAN
-from PIL import Image
 
 
 # Create a dataset class for the images and texts
