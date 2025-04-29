@@ -159,16 +159,14 @@ def visualize_examples(
             data = model.random_data([image])[0].unsqueeze(0)
             encoded_image, decoded_data = model(image, data)
 
-            examples.append(
-                {
-                    "cover": image.squeeze(0).cpu(),
-                    "stego": encoded_image.squeeze(0).cpu(),
-                    "psnr": calculate_psnr(image, encoded_image),
-                    "acc": (decoded_data > 0).float().eq(data).float().mean().item(),
-                    "data": data.squeeze(0).cpu(),
-                    "decoded": decoded_data.squeeze(0).cpu(),
-                }
-            )
+            examples.append({
+                "cover": image.squeeze(0).cpu(),
+                "stego": encoded_image.squeeze(0).cpu(),
+                "psnr": calculate_psnr(image, encoded_image),
+                "acc": (decoded_data > 0).float().eq(data).float().mean().item(),
+                "data": data.squeeze(0).cpu(),
+                "decoded": decoded_data.squeeze(0).cpu(),
+            })
 
     fig, axes = plt.subplots(num_examples, 5, figsize=(15, 3 * num_examples))
     if num_examples == 1:
