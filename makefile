@@ -10,19 +10,30 @@ venv:
 	python3.9 -m venv venv/
 	venv/bin/pip install --upgrade pip setuptools wheel
 
-# Run Commands
 dataset:
 	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_LR_bicubic_X4.zip
 	unzip DIV2K_train_LR_bicubic_X4.zip
 	rm -rf DIV2K_train_LR_bicubic_X4.zip
+	mv DIV2K_train_LR_bicubic data/DIV2K_train_LR_bicubic
 
 	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_bicubic_X4.zip
 	unzip DIV2K_valid_LR_bicubic_X4.zip
 	rm -rf DIV2K_valid_LR_bicubic_X4.zip
+	mv DIV2K_valid_LR_bicubic data/DIV2K_valid_LR_bicubic
+
+	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_unknown_X4.zip
+	unzip DIV2K_valid_LR_unknown_X4.zip
+	rm -rf DIV2K_valid_LR_unknown_X4.zip
+	mv DIV2K_valid_LR_unknown data/DIV2K_valid_LR_unknown
 
 run:
 	venv/bin/python run.py --model_type="dense" --data_depth=6 --model_path=models/DenseSteganoGAN/6/epoch_32.pth --image_path=DIV2K_valid_LR_bicubic/X4/0801x4.png --text="Hello World!"	
 
+# Data Analysis Commands
+metrics:
+	venv/bin/python metrics.py --model_path=./models/archived/augmented/DenseSteganoGAN/1/epoch_32.pth --visualize
+
+# Training Commands
 train:
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6
 
@@ -83,3 +94,7 @@ train-all-extra:
 	make train-basic-extra
 	make train-residual-extra
 	make train-dense-extra
+
+train-all-both:
+	make train-all
+	make train-all-extra

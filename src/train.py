@@ -13,15 +13,15 @@ from src.network import BasicSteganoGAN, ResidualSteganoGAN, DenseSteganoGAN
 class RenderDataset(torch.utils.data.Dataset):
     def __init__(self, images, texts):
         self.images = images
-        self.texts = texts
+        self.datas = texts
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, idx):
         image = self.images[idx]
-        text = self.texts[idx]
-        return image, text
+        data = self.datas[idx]
+        return image, data
 
 
 # Train the encoder and decoder of the SteganoGAN
@@ -32,17 +32,35 @@ def update_forward(network, dataloader, optimizer):
     total_generated_score = 0
 
     for images, data in tqdm(dataloader, desc="Network Training", leave=True):
+        # Randomly flip the images
+        random = torch.rand(1).item()
+        if random > 0.75: images = torch.flip(images, dims=[-1])  # Horizontal flip
+        elif random > 0.5: images = torch.flip(images, dims=[-2])  # Vertical flip
+        elif random > 0.25: images = torch.flip(images, dims=[-1, -2])  # H/V flip
+
+        # Randomly crop the images while ensuring some minimum size
+        min_height, min_width = images.shape[-2] // 2, images.shape[-1] // 2
+        top    = torch.randint(0, images.shape[-2]-min_height+1, (1,)).item()
+        left   = torch.randint(0, images.shape[-1]-min_width+1, (1,)).item()
+        bottom = torch.randint(top+min_height, images.shape[-2]+1, (1,)).item()
+        right  = torch.randint(left+min_width, images.shape[-1]+1, (1,)).item()
+        images = images[:, :, top:bottom, left:right]
+        data = data[:, :, top:bottom, left:right]
+
+        # Run the images through the network
         generated, decoded = network(images, data)
         encoder_mse        = F.mse_loss(generated, images)
         decoder_loss       = F.binary_cross_entropy_with_logits(decoded.float(), data.float())
         decoder_acc        = (decoded > 0).float().eq(data).float().mean()
         generated_score    = network.critic(generated)
 
+        # Update the network
         optimizer.zero_grad()
-        (encoder_mse + decoder_loss + generated_score).backward()
+        (100 * encoder_mse + decoder_loss + generated_score).backward()
         torch.nn.utils.clip_grad_norm_(network.parameters(), max_norm=0.25)
         optimizer.step()
 
+        # Record the statistics
         total_encode_mse      += encoder_mse.item()
         total_decode_loss     += decoder_loss.item()
         total_decode_acc      += decoder_acc.item()
@@ -63,14 +81,32 @@ def update_critic(network, dataloader, optimizer):
     total_critic_loss = 0
 
     for images, data in tqdm(dataloader, desc="Critic Training", leave=True):
+        # Randomly flip the images
+        random = torch.rand(1).item()
+        if random > 0.75: images = torch.flip(images, dims=[-1])  # Horizontal flip
+        elif random > 0.5: images = torch.flip(images, dims=[-2])  # Vertical flip
+        elif random > 0.25: images = torch.flip(images, dims=[-1, -2])  # H/V flip
+
+        # Randomly crop the images while ensuring some minimum size
+        min_height, min_width = images.shape[-2] // 2, images.shape[-1] // 2
+        top    = torch.randint(0, images.shape[-2]-min_height+1, (1,)).item()
+        left   = torch.randint(0, images.shape[-1]-min_width+1, (1,)).item()
+        bottom = torch.randint(top+min_height, images.shape[-2]+1, (1,)).item()
+        right  = torch.randint(left+min_width, images.shape[-1]+1, (1,)).item()
+        images = images[:, :, top:bottom, left:right]
+        data = data[:, :, top:bottom, left:right]
+
+        # Run the images through the network
         generated       = network.forward(images, data)[0]
         image_score     = network.critic(images)
         generated_score = network.critic(generated)
 
+        # Update the critic
         optimizer.zero_grad()
         (image_score - generated_score).backward(retain_graph=True)
         optimizer.step()
 
+        # Clip the critic weights as per the original paper
         for param in network.critic.parameters():
             param.data.clamp_(-0.1, 0.1)
         total_critic_loss += (image_score - generated_score).item()
@@ -117,6 +153,7 @@ def validate_both(network, dataloader):
     total_generated_score /= len(dataloader)
     total_critic_loss     /= len(dataloader)
 
+    # TODO: Average SSIM, PSNR, and BPP
     # total_ssim /= len(dataloader)
     # total_psnr /= len(dataloader)
     # total_bpp  /= len(dataloader)
@@ -135,13 +172,9 @@ def train_network(network, train_images, val_images, epochs=10):
     forward_optimizer   = torch.optim.AdamW(combined_parameters, lr=0.0001)
     critic_optimizer    = torch.optim.AdamW(network.critic.parameters(), lr=0.0001)
 
-    # Convert images and generate random data
-    train_images  = network.convert_image(train_images)
-    train_payload = network.random_data(train_images)
-    val_images    = network.convert_image(val_images)
-    val_payload   = network.random_data(val_images)
-
     # Create training and validation datasets
+    train_payload = network.random_data(train_images)
+    val_payload   = network.random_data(val_images)
     val_data   = RenderDataset(val_images, val_payload)
     train_data = RenderDataset(train_images, train_payload)
 
@@ -189,13 +222,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load training images from the directory
-    train_image_dir   = "DIV2K_train_LR_bicubic/X4/"
+    train_image_dir   = "data/DIV2K_train_LR_bicubic/X4/"
     train_image_files = [os.path.join(train_image_dir, f) for f in os.listdir(train_image_dir) if f.endswith(('.png'))]
     train_transform   = transforms.Compose([transforms.ToTensor()])
     train_images      = [train_transform(Image.open(img).convert("RGB")) for img in train_image_files]
 
     # Load validation images from the directory
-    val_image_dir   = "DIV2K_valid_LR_bicubic/X4/"
+    val_image_dir   = "data/DIV2K_valid_LR_bicubic/X4/"
     val_image_files = [os.path.join(val_image_dir, f) for f in os.listdir(val_image_dir) if f.endswith(('.png'))]
     val_transform   = transforms.Compose([transforms.ToTensor()])
     val_images      = [val_transform(Image.open(img).convert("RGB")) for img in val_image_files]
@@ -205,7 +238,6 @@ if __name__ == "__main__":
     if args.model == "BasicSteganoGAN": network = BasicSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "ResidualSteganoGAN": network = ResidualSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "DenseSteganoGAN": network = DenseSteganoGAN(data_depth=args.data_depth, device=device)
-
 
     # Train the network
     print("Starting training...")

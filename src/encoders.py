@@ -31,7 +31,7 @@ class BasicEncoder(nn.Module):
     def forward(self, image, data):
         x = torch.cat([self.initial(image), data], dim=1)
         x = self.final(self.block2(self.block1(x)))
-        return F.tanh(x) # Within the codebase, but not in the paper
+        return x
 
 
 class ResidualEncoder(nn.Module):

@@ -53,7 +53,7 @@ class BasicSteganoGAN(nn.Module):
     def random_data(self, images):
         data = []
         for image in images:
-            data.append(torch.rand((self.data_depth, image.shape[1], image.shape[2]), device=image.device) > 0.5)
+            data.append(torch.rand((self.data_depth, image.shape[-2], image.shape[-1]), device=image.device) > 0.5)
         return data
 
     # Assumes that the image and data are already converted
@@ -63,17 +63,16 @@ class BasicSteganoGAN(nn.Module):
 
     # Assumes that the image and data are already converted
     def critic_score(self, images):
-        x = self.critic(images)
-        return x
+        return self.critic(images)
 
-    # Does not assume that the image and data are already converted
+    # Does not assume that the data is already converted
     def encode(self, image, text):
         _, H, W = image.shape
         bits = self.convert_text(text, self.data_depth, W, H)
         generated = self.encoder(image.unsqueeze(0), bits)
         return generated
 
-    # Assumes that the image and data are already converted
+    # Assumes that the data is already converted
     def decode(self, image):
         image = image.to(self.device)
         bits = self.decoder(image).view(-1) > 0
