@@ -222,13 +222,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Load training images from the directory
-    train_image_dir   = "DIV2K_train_LR_bicubic/X4/"
+    train_image_dir   = "data/DIV2K_train_LR_bicubic/X4/"
     train_image_files = [os.path.join(train_image_dir, f) for f in os.listdir(train_image_dir) if f.endswith(('.png'))]
     train_transform   = transforms.Compose([transforms.ToTensor()])
     train_images      = [train_transform(Image.open(img).convert("RGB")) for img in train_image_files]
 
     # Load validation images from the directory
-    val_image_dir   = "DIV2K_valid_LR_bicubic/X4/"
+    val_image_dir   = "data/DIV2K_valid_LR_bicubic/X4/"
     val_image_files = [os.path.join(val_image_dir, f) for f in os.listdir(val_image_dir) if f.endswith(('.png'))]
     val_transform   = transforms.Compose([transforms.ToTensor()])
     val_images      = [val_transform(Image.open(img).convert("RGB")) for img in val_image_files]
