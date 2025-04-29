@@ -31,7 +31,8 @@ class BasicSteganoGAN(nn.Module):
     # Denormalize to [0, 255], assuming (B, D, H, W)
     def unconvert_image(self, images):
         images = [(image + 1.0) * 127.5 for image in images]
-        return images.clamp(0, 255).to(torch.uint8)
+        images = [image.clamp(0, 255) for image in images]
+        return images
 
     # Convert text to (B, D, H, W)
     def convert_text(self, text):
@@ -46,7 +47,7 @@ class BasicSteganoGAN(nn.Module):
     def random_data(self, images):
         data = []
         for image in images:
-            data.append(torch.rand((self.data_depth, image.shape[1], image.shape[2]), device=image.device) > 0.5)
+            data.append(torch.rand((self.data_depth, image.shape[-2], image.shape[-1]), device=image.device) > 0.5)
         return data
 
     # Assumes that the image and data are already converted

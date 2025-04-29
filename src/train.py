@@ -1,28 +1,27 @@
 import os
 import torch
 import argparse
-import torch.nn as nn
+from PIL import Image
 from tqdm import tqdm
 import torch.nn.functional as F
 from torchvision import transforms
 
 from src.network import BasicSteganoGAN, ResidualSteganoGAN, DenseSteganoGAN
-from PIL import Image
 
 
 # Create a dataset class for the images and texts
 class RenderDataset(torch.utils.data.Dataset):
     def __init__(self, images, texts):
         self.images = images
-        self.texts = texts
+        self.datas = texts
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, idx):
         image = self.images[idx]
-        text = self.texts[idx]
-        return image, text
+        data = self.datas[idx]
+        return image, data
 
 
 # Train the encoder and decoder of the SteganoGAN

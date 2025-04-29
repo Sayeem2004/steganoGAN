@@ -10,7 +10,6 @@ venv:
 	python3.11 -m venv venv/
 	venv/bin/pip install --upgrade pip setuptools wheel
 
-# Run Commands
 dataset:
 	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_LR_bicubic_X4.zip
 	unzip DIV2K_train_LR_bicubic_X4.zip
@@ -25,6 +24,11 @@ dataset:
 	rm -rf DIV2K_valid_LR_unknown_X4.zip
 	mv DIV2K_valid_LR_unknown DIV2K_test_LR_unknown
 
+# Data Analysis Commands
+metrics:
+	venv/bin/python metrics.py --model_path=./models/augmented/DenseSteganoGAN/1/epoch_32.pth --visualize
+
+# Training Commands
 train:
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6
 
