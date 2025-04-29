@@ -99,6 +99,9 @@ train-all-both:
 	make train-all
 	make train-all-extra
 
+steg-expose:
+	java -jar StegExpose.jar save_and_div default default steganalysis
+
 
 metrics-basic:
 		venv/bin/python metrics.py --model_type=basic --data_depth=1 --model_path=models/basic/depth1_epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
