@@ -20,6 +20,11 @@ dataset:
 	unzip DIV2K_valid_LR_bicubic_X4.zip
 	rm -rf DIV2K_valid_LR_bicubic_X4.zip
 
+	curl -O https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_unknown_X4.zip
+	unzip DIV2K_valid_LR_unknown_X4.zip
+	rm -rf DIV2K_valid_LR_unknown_X4.zip
+	mv DIV2K_valid_LR_unknown DIV2K_test_LR_unknown
+
 train:
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=32 --data_depth=6
 
