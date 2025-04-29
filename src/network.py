@@ -22,18 +22,6 @@ class BasicSteganoGAN(nn.Module):
             self.decoder.to(device)
             self.critic.to(device)
 
-    # Normalize to [-1, 1], assuming (B, D, H, W)
-    def convert_image(self, images):
-        images = [image / 127.5 - 1.0 for image in images]
-        images = [images.to(device=self.device) for images in images]
-        return images
-
-    # Denormalize to [0, 255], assuming (B, D, H, W)
-    def unconvert_image(self, images):
-        images = [(image + 1.0) * 127.5 for image in images]
-        images = [image.clamp(0, 255) for image in images]
-        return images
-
     # Convert text to (B, D, H, W)
     def convert_text(self, text):
         # TODO: Implement the conversion of text to (B, D, H, W)
@@ -57,17 +45,14 @@ class BasicSteganoGAN(nn.Module):
 
     # Assumes that the image and data are already converted
     def critic_score(self, images):
-        x = self.critic(images)
-        return x
+        return self.critic(images)
 
-    # Does not assume that the image and data are already converted
+    # Does not assume that the data is already converted
     def encode(self, image, text):
-        scaled = self.convert_image(image)
         bits = self.convert_text(text)
-        generated = self.encoder(scaled, bits)
-        return self.unconvert_image(generated)
+        return self.encoder(image, bits)
 
-    # Assumes that the image and data are already converted
+    # Assumes that the data is already converted
     def decode(self, image):
         decoded = self.decoder(image)
         return self.unconvert_text(decoded)

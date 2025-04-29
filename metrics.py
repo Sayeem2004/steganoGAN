@@ -75,9 +75,7 @@ def evaluate_steganogan(model, dataloader):
 
     with torch.no_grad():
         for cover_image in tqdm(dataloader, desc="Network Metrics", leave=True):
-            cover_image = model.convert_image([cover_image])[0]
-            data        = model.random_data([cover_image])[0].unsqueeze(0)
-
+            data = model.random_data([cover_image])[0].unsqueeze(0)
             stego_image, decoded_data = model(cover_image, data)
             acc = (decoded_data > 0).float().eq(data).float().mean().item()
 
@@ -121,13 +119,14 @@ def evaluate_model_on_dataset(model_type, data_depth, model_path=None, dataset_p
     dataloader  = DataLoader(images, batch_size=1, shuffle=False)
 
     # Evaluate the model on the dataset
-    metrics = evaluate_steganogan(model, dataloader)
-    print(f"Model Type: {model_type.capitalize()}")
-    print(f"Data Depth: {data_depth}")
-    print(f"Bit Accuracy: {metrics['accuracy']:.4f}")
-    print(f"Reed-Solomon BPP: {metrics['rs_bpp']:.4f}")
-    print(f"PSNR: {metrics['psnr']:.2f}")
-    print(f"SSIM: {metrics['ssim']:.4f}")
+    metrics = None
+    # metrics = evaluate_steganogan(model, dataloader)
+    # print(f"Model Type: {model_type.capitalize()}")
+    # print(f"Data Depth: {data_depth}")
+    # print(f"Bit Accuracy: {metrics['accuracy']:.4f}")
+    # print(f"Reed-Solomon BPP: {metrics['rs_bpp']:.4f}")
+    # print(f"PSNR: {metrics['psnr']:.2f}")
+    # print(f"SSIM: {metrics['ssim']:.4f}")
     return metrics, model, dataloader
 
 
@@ -138,18 +137,14 @@ def visualize_examples(model, dataloader, num_examples=3, save_path=None):
     with torch.no_grad():
         for image in dataloader:
             if len(examples) >= num_examples: break
-            image = model.convert_image([image])[0]
             data  = model.random_data([image])[0].unsqueeze(0)
-            print(image.shape, data.shape)
-
             encoded_image, decoded_data = model(image, data)
-            normal_image  = model.unconvert_image(encoded_image)[0]
 
             examples.append({
-                "cover": image.squeeze(0).cpu(),
-                "stego": normal_image.squeeze(0).cpu(),
-                "data": data.squeeze(0).cpu(),
-                "decoded": decoded_data.squeeze(0).cpu()
+                "cover": image.squeeze(0).cpu(), "stego": encoded_image.squeeze(0).cpu(),
+                "psnr": calculate_psnr(image, encoded_image),
+                "acc": (decoded_data > 0).float().eq(data).float().mean().item(),
+                "data": data.squeeze(0).cpu(), "decoded": decoded_data.squeeze(0).cpu()
             })
 
     _, axes = plt.subplots(num_examples, 4, figsize=(12, 3 * num_examples))
@@ -157,14 +152,13 @@ def visualize_examples(model, dataloader, num_examples=3, save_path=None):
 
     for i, example in enumerate(examples):
         cover_img = example["cover"].permute(1, 2, 0).numpy() # C x H x W -> H x W x C
-        axes[i, 0].imshow(np.clip(cover_img, 0, 1))
+        axes[i, 0].imshow(cover_img)
         axes[i, 0].set_title("Cover Image")
         axes[i, 0].axis("off")
 
         stego_img = example["stego"].permute(1, 2, 0).numpy() # C x H x W -> H x W x C
-        psnr      = calculate_psnr(example["cover"].unsqueeze(0), example["stego"].unsqueeze(0))
-        axes[i, 1].imshow(np.clip(stego_img, 0, 1))
-        axes[i, 1].set_title(f"Stego Image (PSNR: {psnr:.2f})")
+        axes[i, 1].imshow(stego_img)
+        axes[i, 1].set_title(f"Stego Image (PSNR: {example['psnr']:.2f})")
         axes[i, 1].axis("off")
 
         data = example["data"][0].numpy()
@@ -173,9 +167,8 @@ def visualize_examples(model, dataloader, num_examples=3, save_path=None):
         axes[i, 2].axis("off")
 
         decoded = (example["decoded"][0] > 0).float().numpy()
-        acc     = (decoded == example["data"][0].numpy()).mean()
         axes[i, 3].imshow(decoded, cmap="gray")
-        axes[i, 3].set_title(f"Decoded Data (Acc: {acc:.2f})")
+        axes[i, 3].set_title(f"Decoded Data (Acc: {example['acc']:.2f})")
         axes[i, 3].axis("off")
 
     plt.tight_layout()
