@@ -130,3 +130,27 @@ train-all-leaky:
 	make train-basic-leaky
 	make train-residual-leaky
 	make train-dense-leaky
+
+train-basic-long:
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=1
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=2
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=3
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=4
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=5
+	venv/bin/python -m src.train --model=BasicSteganoGAN --epochs=64 --data_depth=6
+
+train-residual-long:
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=1
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=2
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=3
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=4
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=5
+	venv/bin/python -m src.train --model=ResidualSteganoGAN --epochs=64 --data_depth=6
+
+train-dense-long:
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=1
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=2
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=3
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=4
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=5
+	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=6
