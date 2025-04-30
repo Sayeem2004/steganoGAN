@@ -8,11 +8,13 @@ from math import exp
 from tqdm import tqdm
 from PIL import Image
 import matplotlib.pyplot as plt
+from torchvision import transforms
 from torch.nn.functional import conv2d
 from torch.utils.data import DataLoader
-from torchvision import transforms
+
 
 from src.network import DenseSteganoGAN, BasicSteganoGAN, ResidualSteganoGAN
+from src.network import LeakyBasicSteganoGAN, LeakyResidualSteganoGAN, LeakyDenseSteganoGAN
 
 
 def calculate_rs_bpp(bit_accuracy, data_depth):
@@ -23,8 +25,7 @@ def calculate_rs_bpp(bit_accuracy, data_depth):
 
 def calculate_psnr(cover_image, stego_image):
     mse = torch.mean((cover_image - stego_image) ** 2)
-    if mse < 1e-10:
-        return float("inf")
+    if mse < 1e-10: return float("inf")
     max_pixel_value = 1.0
     psnr = 20 * torch.log10(torch.tensor(max_pixel_value)) - 10 * torch.log10(mse)
     return psnr.item()
@@ -101,14 +102,13 @@ def evaluate_steganogan(model, dataloader):
 
 
 def load_model(model_type, data_depth, model_path, device):
-    if model_type == "basic":
-        model = BasicSteganoGAN(data_depth=data_depth, device=device)
-    elif model_type == "residual":
-        model = ResidualSteganoGAN(data_depth=data_depth, device=device)
-    elif model_type == "dense":
-        model = DenseSteganoGAN(data_depth=data_depth, device=device)
-    else:
-        raise ValueError(f"Unknown model type: {model_type}")
+    if model_type == "basic": model = BasicSteganoGAN(data_depth=data_depth, device=device)
+    elif model_type == "residual": model = ResidualSteganoGAN(data_depth=data_depth, device=device)
+    elif model_type == "dense": model = DenseSteganoGAN(data_depth=data_depth, device=device)
+    elif model_type == "leaky_basic": model = LeakyBasicSteganoGAN(data_depth=data_depth, device=device)
+    elif model_type == "leaky_residual": model = LeakyResidualSteganoGAN(data_depth=data_depth, device=device)
+    elif model_type == "leaky_dense": model = LeakyDenseSteganoGAN(data_depth=data_depth, device=device)
+    else: raise ValueError(f"Unknown model type: {model_type}")
 
     if model_path:
         if not os.path.exists(model_path):
@@ -118,20 +118,14 @@ def load_model(model_type, data_depth, model_path, device):
     return model
 
 
-def evaluate_model_on_dataset(
-    model_type, data_depth, model_path=None, dataset_path=None
-):
+def evaluate_model_on_dataset(model_type, data_depth, model_path=None, dataset_path=None):
     # Obtain the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_model(model_type, data_depth, model_path, device)
     transform = transforms.Compose([transforms.ToTensor()])
 
     # Load testing images from the directory
-    image_files = [
-        os.path.join(dataset_path, f)
-        for f in os.listdir(dataset_path)
-        if f.endswith((".png"))
-    ]
+    image_files = [os.path.join(dataset_path, f) for f in os.listdir(dataset_path) if f.endswith((".png"))]
     images = [transform(Image.open(img).convert("RGB")) for img in image_files]
     dataloader = DataLoader(images, batch_size=1, shuffle=False)
 
@@ -146,9 +140,7 @@ def evaluate_model_on_dataset(
     return metrics, model, dataloader
 
 
-def visualize_examples(
-    model, dataloader, num_examples=3, save_path=None, model_type=None, data_depth=None
-):
+def visualize_examples(model, dataloader, num_examples=3, save_path=None, model_type=None, data_depth=None):
     examples = []
     model.eval()
 
@@ -173,10 +165,7 @@ def visualize_examples(
         axes = axes.reshape(1, -1)
 
     if model_type and data_depth:
-        fig.suptitle(
-            f"{model_type.capitalize()} SteganoGAN with Data Depth {data_depth}",
-            fontsize=16,
-        )
+        fig.suptitle(f"{model_type.capitalize()} SteganoGAN with Data Depth {data_depth}", fontsize=16,)
 
     for i, example in enumerate(examples):
         # 1. Cover Image
@@ -226,9 +215,7 @@ def visualize_examples(
         plt.show()
 
 
-def save_metrics_to_csv(
-    metrics, model_type, data_depth, model_path, csv_path="steganogan_results.csv"
-):
+def save_metrics_to_csv(metrics, model_type, data_depth, model_path, csv_path="steganogan_results.csv"):
     epoch = ""
     if model_path and "epoch_" in model_path:
         try:
@@ -256,9 +243,7 @@ def save_metrics_to_csv(
         fieldnames = list(row_data.keys())
         writer = csv.DictWriter(file, fieldnames=fieldnames)
 
-        if not file_exists:
-            writer.writeheader()
-
+        if not file_exists: writer.writeheader()
         writer.writerow(row_data)
 
     print(f"Results saved to {csv_path}")
@@ -269,7 +254,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_type",
         type=str,
-        choices=["basic", "residual", "dense"],
+        choices=["basic", "residual", "dense", "leaky_basic", "leaky_residual", "leaky_dense"],
         default="dense",
         help="Type of SteganoGAN model to evaluate",
     )
