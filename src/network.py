@@ -3,10 +3,12 @@ import torch.nn as nn
 from collections import Counter
 import torch.nn.functional as F
 
-from src.encoders import BasicEncoder, ResidualEncoder, DenseEncoder
-from src.decoders import BasicDecoder, DenseDecoder
 from src.critics import BasicCritic
+from src.decoders import DenseDecoder, LeakyDenseDecoder
+from src.encoders import BasicEncoder, ResidualEncoder, DenseEncoder
+from src.encoders import LeakyBasicEncoder, LeakyResidualEncoder, LeakyDenseEncoder
 import src.reed as rsCrypto
+
 
 class BasicSteganoGAN(nn.Module):
     def __init__(self, data_depth=1, device=None):
@@ -36,7 +38,7 @@ class BasicSteganoGAN(nn.Module):
         payload = payload[:width * height * depth]
         payload = torch.FloatTensor(payload).view(1, depth, height, width)
         return payload
-    
+
     def unconvert_text(self, bits):
         candidates = Counter()
         byte_array = rsCrypto.bits_to_bytearray(bits)
@@ -44,7 +46,8 @@ class BasicSteganoGAN(nn.Module):
 
         for candidate in candidateMessages:
             candidate = rsCrypto.bytearray_to_text(bytearray(candidate))
-            if candidate: candidates[candidate] += 1
+            if candidate == False: continue
+            candidates[candidate] += 1
 
         if len(candidates) == 0: raise ValueError('Failed to find message.')
         candidate, _ = candidates.most_common(1)[0]
@@ -67,10 +70,16 @@ class BasicSteganoGAN(nn.Module):
 
     # Does not assume that the data is already converted
     def encode(self, image, text):
-        _, H, W = image.shape
+        if image.ndim == 4:  # If batched input (B, C, H, W)
+            _, _, H, W = image.shape
+        elif image.ndim == 3:  # If single image input (C, H, W)
+            _, H, W = image.shape
+        else:
+            raise ValueError(f"Unexpected image shape: {image.shape}")
+        # _, H, W = image.shape
         bits = self.convert_text(text, self.data_depth, W, H)
         generated = self.encoder(image.unsqueeze(0), bits)
-        return generated
+        return generated, bits
 
     # Assumes that the data is already converted
     def decode(self, image):
@@ -104,6 +113,54 @@ class DenseSteganoGAN(BasicSteganoGAN):
         self.decoder = DenseDecoder(data_depth)
         self.critic = BasicCritic()
         self.name = "DenseSteganoGAN"
+
+        if device is not None:
+            self.device = device
+            self.encoder.to(device)
+            self.decoder.to(device)
+            self.critic.to(device)
+
+
+class LeakyBasicSteganoGAN(BasicSteganoGAN):
+    def __init__(self, data_depth=1, device=None):
+        super(LeakyBasicSteganoGAN, self).__init__()
+        self.data_depth = data_depth
+        self.encoder = LeakyBasicEncoder(data_depth)
+        self.decoder = LeakyDenseDecoder(data_depth)
+        self.critic = BasicCritic()
+        self.name = "LeakyBasicSteganoGAN"
+
+        if device is not None:
+            self.device = device
+            self.encoder.to(device)
+            self.decoder.to(device)
+            self.critic.to(device)
+
+
+class LeakyResidualSteganoGAN(BasicSteganoGAN):
+    def __init__(self, data_depth=1, device=None):
+        super(LeakyResidualSteganoGAN, self).__init__()
+        self.data_depth = data_depth
+        self.encoder = LeakyResidualEncoder(data_depth)
+        self.decoder = LeakyDenseDecoder(data_depth)
+        self.critic = BasicCritic()
+        self.name = "LeakyResidualSteganoGAN"
+
+        if device is not None:
+            self.device = device
+            self.encoder.to(device)
+            self.decoder.to(device)
+            self.critic.to(device)
+
+
+class LeakyDenseSteganoGAN(BasicSteganoGAN):
+    def __init__(self, data_depth=1, device=None):
+        super(LeakyDenseSteganoGAN, self).__init__()
+        self.data_depth = data_depth
+        self.encoder = LeakyDenseEncoder(data_depth)
+        self.decoder = LeakyDenseDecoder(data_depth)
+        self.critic = BasicCritic()
+        self.name = "LeakyDenseSteganoGAN"
 
         if device is not None:
             self.device = device
