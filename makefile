@@ -162,12 +162,29 @@ train-all-long:
 
 
 metrics-basic:
-		venv/bin/python metrics.py --model_type=basic --data_depth=1 --model_path=models/basic/depth1_epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=1 --model_path=models/normal/BasicSteganoGAN/1/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=2 --model_path=models/normal/BasicSteganoGAN/2/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=3 --model_path=models/normal/BasicSteganoGAN/3/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=4 --model_path=models/normal/BasicSteganoGAN/4/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=5 --model_path=models/normal/BasicSteganoGAN/5/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=6 --model_path=models/normal/BasicSteganoGAN/6/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
 
 metrics-residual:
+		venv/bin/python metrics.py --model_type=residual --data_depth=1 --model_path=models/normal/ResidualSteganoGAN/1/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=2 --model_path=models/normal/ResidualSteganoGAN/2/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=3 --model_path=models/normal/ResidualSteganoGAN/3/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=4 --model_path=models/normal/ResidualSteganoGAN/4/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=5 --model_path=models/normal/ResidualSteganoGAN/5/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=6 --model_path=models/normal/ResidualSteganoGAN/6/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+
 
 metrics-dense:
-		venv/bin/python metrics.py --model_type=dense --data_depth=3 --model_path=models/archived/augmented/DenseSteganoGAN/3/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=1 --model_path=models/normal/DenseSteganoGAN/1/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=2 --model_path=models/normal/DenseSteganoGAN/2/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=3 --model_path=models/normal/DenseSteganoGAN/3/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=4 --model_path=models/normal/DenseSteganoGAN/4/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=5 --model_path=models/normal/DenseSteganoGAN/5/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=6 --model_path=models/normal/DenseSteganoGAN/6/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
 
 
 metrics-all:
@@ -176,10 +193,28 @@ metrics-all:
 	make metrics-dense
 
 metrics-basic-extra:
+		venv/bin/python metrics.py --model_type=basic --data_depth=7 --model_path=models/normal/BasicSteganoGAN/7/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=8 --model_path=models/normal/BasicSteganoGAN/8/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=9 --model_path=models/normal/BasicSteganoGAN/9/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=10 --model_path=models/normal/BasicSteganoGAN/10/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=11 --model_path=models/normal/BasicSteganoGAN/11/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=basic --data_depth=12 --model_path=models/normal/BasicSteganoGAN/12/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
 
 metrics-residual-extra:
+		venv/bin/python metrics.py --model_type=residual --data_depth=7 --model_path=models/normal/ResidualSteganoGAN/7/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=8 --model_path=models/normal/ResidualSteganoGAN/8/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=9 --model_path=models/normal/ResidualSteganoGAN/9/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=10 --model_path=models/normal/ResidualSteganoGAN/10/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=11 --model_path=models/normal/ResidualSteganoGAN/11/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=residual --data_depth=12 --model_path=models/normal/ResidualSteganoGAN/12/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
 
 metrics-dense-extra:
+		venv/bin/python metrics.py --model_type=dense --data_depth=7 --model_path=models/normal/DenseSteganoGAN/7/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=8 --model_path=models/normal/DenseSteganoGAN/8/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=9 --model_path=models/normal/DenseSteganoGAN/9/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=10 --model_path=models/normal/DenseSteganoGAN/10/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=11 --model_path=models/normal/DenseSteganoGAN/11/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
+		venv/bin/python metrics.py --model_type=dense --data_depth=12 --model_path=models/normal/DenseSteganoGAN/12/epoch_32.pth --visualize --save_path=results/visualizations/ --csv_path=results/steganogan_results.csv
 
 metrics-all-extra:
 	make metrics-basic-extra
