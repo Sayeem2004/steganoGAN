@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
     # Train the network
     print("Starting training...")
-    train_stats, eval_stats = train_network(network, train_images, val_images, epochs=32)
+    train_stats, eval_stats = train_network(network, train_images, val_images, epochs=args.epochs)
     print("Training completed.")
 
     # Save the training and evaluation losses
