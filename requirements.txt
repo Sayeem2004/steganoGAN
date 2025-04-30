@@ -5,3 +5,7 @@ reedsolo
 torch
 torchvision
 tqdm
+pandas
+scikit-learn
+torch
+maven
