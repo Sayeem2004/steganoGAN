@@ -20,6 +20,21 @@ class ConvBlock(nn.Module):
         return self.block(x)
 
 
+class LeakyConvBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, lastBlock=False):
+        super(LeakyConvBlock, self).__init__()
+        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1)]
+
+        if not lastBlock:
+            layers.append(nn.BatchNorm2d(out_channels))
+            layers.append(nn.LeakyReLU(inplace=True))
+
+        self.block = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.block(x)
+
+
 class BasicEncoder(nn.Module):
     def __init__(self, data_depth):
         super(BasicEncoder, self).__init__()
@@ -55,6 +70,50 @@ class DenseEncoder(nn.Module):
         self.block1  = ConvBlock(32 + data_depth, 32)  # (B, 32 + D, W, H) -> (B, 32, W, H)
         self.block2  = ConvBlock(32*2 + data_depth, 32)  # (B, 32*2 + D, W, H) -> (B, 32, W, H)
         self.final   = ConvBlock(32*3 + data_depth, 3, lastBlock=True)  # (B, 32*3 + D, W, H) -> (B, 3, W, H)
+
+    def forward(self, image, data):
+        x1 = torch.cat([self.initial(image), data], dim=1) # image + data
+        x2 = self.block1(x1)
+        x3 = self.block2(torch.cat([x1, x2], dim=1)) # (image + data) + block1
+        x4 = self.final(torch.cat([x1, x2, x3], dim=1)) # (image + data) + block1 + block2
+        return x4 + image
+
+
+class LeakyBasicEncoder(nn.Module):
+    def __init__(self, data_depth):
+        super(LeakyBasicEncoder, self).__init__()
+        self.initial = LeakyConvBlock(3, 32) # (B, 3, W, H) -> (B, 32, W, H)
+        self.block1  = LeakyConvBlock(32 + data_depth, 32) # (B, 32 + D, W, H) -> (B, 32, W, H)
+        self.block2  = LeakyConvBlock(32, 32) # (B, 32, W, H) -> (B, 32, W, H)
+        self.final   = LeakyConvBlock(32, 3, lastBlock=True) # (B, 32 + D, W, H) -> (B, 3, W, H)
+
+    def forward(self, image, data):
+        x = torch.cat([self.initial(image), data], dim=1)
+        x = self.final(self.block2(self.block1(x)))
+        return x
+
+
+class LeakyResidualEncoder(nn.Module):
+    def __init__(self, data_depth):
+        super(LeakyResidualEncoder, self).__init__()
+        self.initial = LeakyConvBlock(3, 32) # (B, 3, W, H) -> (B, 32, W, H)
+        self.block1  = LeakyConvBlock(32 + data_depth, 32) # (B, 32 + D, W, H) -> (B, 32, W, H)
+        self.block2  = LeakyConvBlock(32, 32) # (B, 32, W, H) -> (B, 32, W, H)
+        self.final   = LeakyConvBlock(32 + data_depth, 3, lastBlock=True) # (B, 32 + D, W, H) -> (B, 3, W, H)
+
+    def forward(self, image, data):
+        x = torch.cat([self.initial(image), data], dim=1)
+        x = self.final(self.block2(self.block1(x)))
+        return x + image
+
+
+class LeakyDenseEncoder(nn.Module):
+    def __init__(self, data_depth):
+        super(LeakyDenseEncoder, self).__init__()
+        self.initial = LeakyConvBlock(3, 32) # (B, 3, W, H) -> (B, 32, W, H)
+        self.block1  = LeakyConvBlock(32 + data_depth, 32)  # (B, 32 + D, W, H) -> (B, 32, W, H)
+        self.block2  = LeakyConvBlock(32*2 + data_depth, 32)  # (B, 32*2 + D, W, H) -> (B, 32, W, H)
+        self.final   = LeakyConvBlock(32*3 + data_depth, 3, lastBlock=True)  # (B, 32*3 + D, W, H) -> (B, 3, W, H)
 
     def forward(self, image, data):
         x1 = torch.cat([self.initial(image), data], dim=1) # image + data
