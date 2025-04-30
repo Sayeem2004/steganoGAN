@@ -98,3 +98,6 @@ train-all-extra:
 train-all-both:
 	make train-all
 	make train-all-extra
+
+steg-expose:
+	java -jar StegExpose.jar save_and_div default default steganalysis
