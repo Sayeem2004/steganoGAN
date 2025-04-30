@@ -35,7 +35,6 @@ def run_model(model_type, data_depth, model_path, image_path, text):
     model = load_model(model_type, data_depth, model_path, device)
     transform = transforms.Compose([transforms.ToTensor()])
     image = transform(Image.open(image_path).convert("RGB"))
-<<<<<<< HEAD
     
     encoded, bits = model.encode(image, text)
     decoded = model.decode(encoded)
@@ -137,13 +136,6 @@ def visualize_examples(
         print(f"Visualization saved to {full_path}")
     else:
         plt.show()
-=======
-
-    encoded = model.encode(image, text)
-    decoded = model.decode(encoded)
-    return encoded, decoded
-
->>>>>>> 38eeee3b88bfc664412b3e4f09fb600f16fc5bae
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run SteganoGAN models")
@@ -154,7 +146,6 @@ if __name__ == "__main__":
     parser.add_argument("--image_path", type=str, default=None, help="Path to a custom dataset directory.")
     parser.add_argument("--text", type=str, default="Hello World!", help="Text to encode into image.")
     args = parser.parse_args()
-<<<<<<< HEAD
    
     # encoded, decoded = run_model(args.model_type, args.data_depth, args.model_path, args.image_path, args.text)
     model, dataloader = evaluate_model_on_dataset(
@@ -168,8 +159,5 @@ if __name__ == "__main__":
             model_type=args.model_type,
             data_depth=args.data_depth,
         )
-   
-=======
 
     encoded, decoded = run_model(args.model_type, args.data_depth, args.model_path, args.image_path, args.text)
->>>>>>> 38eeee3b88bfc664412b3e4f09fb600f16fc5bae
