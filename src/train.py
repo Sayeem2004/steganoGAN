@@ -7,6 +7,7 @@ import torch.nn.functional as F
 from torchvision import transforms
 
 from src.network import BasicSteganoGAN, ResidualSteganoGAN, DenseSteganoGAN
+from src.network import LeakyBasicSteganoGAN, LeakyResidualSteganoGAN, LeakyDenseSteganoGAN
 
 
 # Create a dataset class for the images and texts
@@ -242,6 +243,10 @@ if __name__ == "__main__":
     if args.model == "BasicSteganoGAN": network = BasicSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "ResidualSteganoGAN": network = ResidualSteganoGAN(data_depth=args.data_depth, device=device)
     elif args.model == "DenseSteganoGAN": network = DenseSteganoGAN(data_depth=args.data_depth, device=device)
+    elif args.model == "LeakyBasicSteganoGAN": network = LeakyBasicSteganoGAN(data_depth=args.data_depth, device=device)
+    elif args.model == "LeakyResidualSteganoGAN": network = LeakyResidualSteganoGAN(data_depth=args.data_depth, device=device)
+    elif args.model == "LeakyDenseSteganoGAN": network = LeakyDenseSteganoGAN(data_depth=args.data_depth, device=device)
+    else: raise ValueError(f"Unknown model: {args.model}")
 
     # Train the network
     print("Starting training...")
