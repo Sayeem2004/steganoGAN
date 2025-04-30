@@ -154,3 +154,8 @@ train-dense-long:
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=4
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=5
 	venv/bin/python -m src.train --model=DenseSteganoGAN --epochs=64 --data_depth=6
+
+train-all-long:
+	make train-basic-long
+	make train-residual-long
+	make train-dense-long
