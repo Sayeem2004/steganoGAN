@@ -6,6 +6,9 @@ clean:
 install:
 	venv/bin/pip install -r requirements.txt
 
+venv3.10:
+	python3.10 -m venv venv/
+	venv/bin/pip install --upgrade pip setuptools wheel
 venv:
 	python3.9 -m venv venv/
 	venv/bin/pip install --upgrade pip setuptools wheel
@@ -35,10 +38,6 @@ metrics:
 
 run:
 	venv/bin/python run.py --model_type="dense" --data_depth=6 --model_path=models/DenseSteganoGAN/6/epoch_32.pth --image_path=DIV2K_valid_LR_bicubic/X4/0801x4.png --text="Hello World!"
-
-steg-expose:
-	java -jar StegExpose.jar save_and_div default default steganalysis
-
 
 # Training Commands
 train:
@@ -102,6 +101,28 @@ train-all-extra:
 	make train-residual-extra
 	make train-dense-extra
 
+train-all-both:
+	make train-all
+	make train-all-extra
+
+.PHONY: setup-steg-expose steg-expose
+
+setup-steg-expose:
+	@if [ ! -d "steg-expose" ]; then \
+		git clone https://github.com/b3dk7/StegExpose.git steg-expose; \
+	else \
+		echo "StegExpose already installed"; \
+	fi
+
+save_images:
+	rm -rf save_and_div
+	venv/bin/python -m trad_visual --model_path models/DenseSteganoGAN/6/epoch_32.pth --save --model_type dense --save_path save_and_div --data_depth 6 --num_examples 100 --dataset_path data/COCO_val_2017
+steg-expose:
+	rm steganalysis
+	java -jar steg-expose/StegExpose.jar save_and_div default default steganalysis
+steg-visualize:
+	venv/bin/python -m trad_visual --model_path models/DenseSteganoGAN/6/epoch_32.pth --model_type dense --dataset_path data/COCO_val_2017 --visualize --csv_path steganalysis --data_depth 6
+	
 train-basic-leaky:
 	venv/bin/python -m src.train --model=LeakyBasicSteganoGAN --epochs=32 --data_depth=1
 	venv/bin/python -m src.train --model=LeakyBasicSteganoGAN --epochs=32 --data_depth=2
