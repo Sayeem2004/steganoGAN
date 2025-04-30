@@ -44,7 +44,8 @@ class BasicSteganoGAN(nn.Module):
 
         for candidate in candidateMessages:
             candidate = rsCrypto.bytearray_to_text(bytearray(candidate))
-            if candidate: candidates[candidate] += 1
+            if candidate == False: continue
+            candidates[candidate] += 1
 
         if len(candidates) == 0: raise ValueError('Failed to find message.')
         candidate, _ = candidates.most_common(1)[0]
@@ -67,10 +68,16 @@ class BasicSteganoGAN(nn.Module):
 
     # Does not assume that the data is already converted
     def encode(self, image, text):
-        _, H, W = image.shape
+        if image.ndim == 4:  # If batched input (B, C, H, W)
+            _, _, H, W = image.shape
+        elif image.ndim == 3:  # If single image input (C, H, W)
+            _, H, W = image.shape
+        else:
+            raise ValueError(f"Unexpected image shape: {image.shape}")
+        # _, H, W = image.shape
         bits = self.convert_text(text, self.data_depth, W, H)
         generated = self.encoder(image.unsqueeze(0), bits)
-        return generated
+        return generated, bits
 
     # Assumes that the data is already converted
     def decode(self, image):

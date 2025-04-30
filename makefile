@@ -27,7 +27,7 @@ dataset:
 	mv DIV2K_valid_LR_unknown data/DIV2K_valid_LR_unknown
 
 run:
-	venv/bin/python run.py --model_type="dense" --data_depth=6 --model_path=models/DenseSteganoGAN/6/epoch_32.pth --image_path=DIV2K_valid_LR_bicubic/X4/0801x4.png --text="Hello World!"	
+	venv/bin/python run.py --model_type="dense" --data_depth=6 --model_path=models/DenseSteganoGAN/6/epoch_32.pth --image_path=data/DIV2K_valid_LR_bicubic/X4 --text="I Love Deep Learning!"	
 
 # Data Analysis Commands
 metrics:
