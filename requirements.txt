@@ -5,4 +5,8 @@ reedsolo
 torch
 torchvision
 tqdm
+pandas
+scikit-learn
+torch
+maven
 numpy==1.24.3
