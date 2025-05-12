@@ -1,5 +1,6 @@
 import zlib
 from reedsolo import RSCodec
+#how many bits allocate for data recovery
 rs = RSCodec(250)
 
 
@@ -19,7 +20,6 @@ def byteString_to_bitString(bit_string):
     # Append 0's to keep bit string 8 chars
     bit_string = '00000000'[len(bit_string):] + bit_string
     return bit_string
-
 
 def bytearray_to_bits(byte_array):
     """Convert array of bytes to a list of bits"""
@@ -63,10 +63,3 @@ def bytearray_to_text(byte_array):
         return text.decode("utf-8")
     except BaseException:
         return False
-
-
-if __name__ == '__main__':
-    original_message = "adsfg"*1000
-    bits = text_to_bits(original_message)
-    recovered_message = bits_to_text(bits)
-    print("recovered message : " + recovered_message)

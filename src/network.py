@@ -27,14 +27,15 @@ class BasicSteganoGAN(nn.Module):
 
     # Convert text to (B, D, H, W)
     def convert_text(self, text, depth, width, height):
+        #adding zero padding to help find message 
         bits = rsCrypto.text_to_bits(text) + [0] * 32
 
         payload = bits
-        duplicateNum = 1
+        #duplicating message until all possible bits are hidden message
         while len(payload) < width * height * depth:
-            duplicateNum += 1
             payload += bits
 
+        #cutoff bits that don't fit within block size
         payload = payload[:width * height * depth]
         payload = torch.FloatTensor(payload).view(1, depth, height, width)
         return payload
@@ -42,6 +43,7 @@ class BasicSteganoGAN(nn.Module):
     def unconvert_text(self, bits):
         candidates = Counter()
         byte_array = rsCrypto.bits_to_bytearray(bits)
+        #every recovered 0 byte consider as a delimeter for message candidate
         candidateMessages = byte_array.split(b'\x00\x00\x00\x00')
 
         for candidate in candidateMessages:
@@ -49,7 +51,8 @@ class BasicSteganoGAN(nn.Module):
             if candidate == False: continue
             candidates[candidate] += 1
 
-        if len(candidates) == 0: raise ValueError('Failed to find message.')
+        if len(candidates) == 0: return None
+        #return the candidate that was decrypted most often
         candidate, _ = candidates.most_common(1)[0]
         return candidate
 
