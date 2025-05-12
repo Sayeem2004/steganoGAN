@@ -112,14 +112,18 @@ setup-steg-expose:
 	fi
 
 save_images:
-	rm -rf save_and_div
-	venv/bin/python -m trad_visual --model_path models/DenseSteganoGAN/6/epoch_32.pth --save --model_type dense --save_path save_and_div --data_depth 6 --num_examples 100 --dataset_path data/COCO_val_2017
+	rm -rf data/save_and_div
+	venv/bin/python -m trad_visual --model_path models/archived/norm-normal/DenseSteganoGAN/6/epoch_32.pth --save --model_type dense --save_path data/save_and_div --data_depth 6 --num_examples 100 --dataset_path data/COCO_val_2017
 steg-expose:
-	rm steganalysis
-	java -jar steg-expose/StegExpose.jar save_and_div default default steganalysis
+	java -jar steg-expose/StegExpose.jar data/save_and_div default default steganalysis
 steg-visualize:
-	venv/bin/python -m trad_visual --model_path models/DenseSteganoGAN/6/epoch_32.pth --model_type dense --dataset_path data/COCO_val_2017 --visualize --csv_path steganalysis --data_depth 6
-	
+	venv/bin/python -m trad_visual --model_path models/archived/norm-normal/DenseSteganoGAN/6/epoch_32.pth --model_type dense --dataset_path data/COCO_val_2017 --visualize --csv_path steganalysis --data_depth 6
+analyze-stego:
+	make setup-steg-expose
+	make save_images
+	make steg-expose
+	make steg-visualize
+
 train-basic-leaky:
 	venv/bin/python -m src.train --model=LeakyBasicSteganoGAN --epochs=32 --data_depth=1
 	venv/bin/python -m src.train --model=LeakyBasicSteganoGAN --epochs=32 --data_depth=2

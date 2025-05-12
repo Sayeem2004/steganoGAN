@@ -61,7 +61,8 @@ def visualize_roc(csv_path="trad_steganalysis"):
     if df.empty:
         print("CSV file is empty.")
         return
-
+    df['Chi Square'] = pd.to_numeric(df['Chi Square'], errors='coerce')
+    df = df.dropna(subset=["Primary Sets", "Chi Square", "Sample Pairs", "RS analysis", "Fusion (mean)"])
     y_true = df['File name'].apply(lambda x: 1 if 'save_images' in str(x) else 0).tolist()
     y_pred = df['Chi Square'].astype(float).tolist()
 
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="stegexpose visualization")
     parser.add_argument("--csv_path", type=str, default="trad_steganalysis", help="Path to a custom dataset directory")
     parser.add_argument("--dataset_path", type=str, default="data/COCO_val_2017", help="Path to a custom dataset directory")
-    parser.add_argument("--save_path", type=str, default="save_and_div", help="Path to a custom dataset directory")
+    parser.add_argument("--save_path", type=str, default="data/save_and_div", help="Path to a custom dataset directory")
     parser.add_argument("--model_type", type=str, choices=["basic", "residual", "dense"], default="dense",
                       help="Type of SteganoGAN model to evaluate")
     parser.add_argument("--data_depth", type=int, default=1, help="Data depth of the model (bits per pixel)")
