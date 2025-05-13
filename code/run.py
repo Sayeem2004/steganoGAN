@@ -254,7 +254,7 @@ if __name__ == "__main__":
                         default="dense", help="Type of SteganoGAN model to evaluate.")
     parser.add_argument("--data_depth", type=int, default=1, help="Data depth of the model (bits per pixel).")
     parser.add_argument("--model_path", type=str, default=None, help="Path to the .pth model file to load.")
-    parser.add_argument("--image_path", type=str, default="data/COCO_val_2017/", help="Path to a custom dataset directory.")
+    parser.add_argument("--image_path", type=str, default="../data/COCO_val_2017/", help="Path to a custom dataset directory.")
     parser.add_argument("--text", type=str, default="Hello World!", help="Text to encode into image.")
     parser.add_argument("--visualizer", type=str, choices=["rsbpp_accuracy", "message_decode_full", "message_decode_small"],
                         default="rsbpp_accuracy", help="Type of visualization to display")
