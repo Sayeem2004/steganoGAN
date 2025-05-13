@@ -63,13 +63,13 @@ setup-steg-expose:
 
 save_images:
 	rm -rf save_and_div
-	venv/bin/python -m traditional --model_path=../results/models/normal/DenseSteganoGAN/6/epoch_32.pth --model_type=dense --save_path=save_and_div --data_depth=6 --num_examples=100 --dataset_path=../data/DIV2K_test_LR_unknown/X4 --save
+	venv/bin/python -m traditional --model_path=../results/models/archived/norm-normal/DenseSteganoGAN/6/epoch_32.pth --model_type=dense --save_path=save_and_div --data_depth=6 --num_examples=100 --dataset_path=../data/DIV2K_test_LR_unknown/X4 --save
 
 steg-expose:
 	java -jar steg-expose/StegExpose.jar save_and_div default default steganalysis
 
 steg-visualize:
-	venv/bin/python -m traditional --model_path=../results/models/normal/DenseSteganoGAN/6/epoch_32.pth --model_type=dense --dataset_path=../data/DIV2K_test_LR_unknown/X4  --csv_path=steganalysis --data_depth=6 --visualize
+	venv/bin/python -m traditional --model_path=../results/models/archived/norm-normal/DenseSteganoGAN/6/epoch_32.pth --model_type=dense --dataset_path=../data/DIV2K_test_LR_unknown/X4  --csv_path=steganalysis --data_depth=6 --visualize
 
 analyze-stego:
 	make setup-steg-expose
