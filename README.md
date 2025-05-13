@@ -44,6 +44,34 @@ Finally, we test against only StegExpose (a traditional analysis tool) to save t
 
 # Reproduction Steps
 
+Most of our code is much easier to run if you can run `make` commands, so we highly suggest installing GNU make.
+
+First navigate into the `code` folder, and set up the runtime environment using `make venv` and `make install`.
+
+The datasets are already downloaded in the `data` folder, but if you want to redownload it you can use the `make dataset` command.
+
+You can train a specific model with a set data depth and number of epochs using the `make train` command.
+
+- However, if you want to batch train everything we did, you can first run `make train-all` to do all the normal network training.
+- You can then do `make train-all-depth`, `make train-all-leaky`, and `make train-all-long` to train our perturbed networks.
+- Training takes around 15 seconds per epoch on an RTX 5070 Ti GPU, and around 15-20 minutes on a M1 Mac CPU.
+
+You can visualize the results of a specific model with a set data depth using the `make metrics` command.
+
+- However, if you want to batch test everything we did, you can first run `make metrics-all` to do all the normal network testing.
+- You can then do `make metrics-all-depth` to test one of our perturbed networks.
+- Testing takes 2-3 minutes per model tested on a M1 Mac CPU.
+
+You can test out a specific model with a set data depth against the traditional StegExpose analysis tool using the `make analyze-stego` command.
+
+- StegAnalysis takes 5-7 minutes per model tested on a M1 Mac CPU.
+
+Finally, you can run a specific model with a set data depth to encode a specified text message using the `make run` command.
+
+- Two variations of this command to see less details and also see the 95% confidence interval for the network are `make run-small` and `make run-accuracy`.
+- This command takes 2-3 minutes per model tested on a M1 Mac CPU.
+
+More details about any of the command line arguments used in the makefile can be obtained by adding the `--help` flag. Good luck reimplementing!
 
 # Results/Insights
 
