@@ -269,7 +269,7 @@ if __name__ == "__main__":
         default="dense", help="Type of SteganoGAN model to evaluate")
     parser.add_argument("--data_depth", type=int, default=1, help="Data depth of the model (bits per pixel)")
     parser.add_argument("--model_path", type=str, default=None, help="Path to the .pth model file to load")
-    parser.add_argument("--dataset_path", type=str, default="data/Div2K_test_LR_unknown/X4/", help="Path to a custom dataset directory")
+    parser.add_argument("--dataset_path", type=str, default="../data/Div2K_test_LR_unknown/X4/", help="Path to a custom dataset directory")
 
     parser.add_argument("--visualize", action="store_true", help="Visualize examples of steganography")
     parser.add_argument("--num_examples", type=int, default=3, help="Number of examples to visualize")
